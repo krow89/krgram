@@ -1,0 +1,4 @@
+# precompilated py files
+*.pyc
+*.pyo
+.idea
