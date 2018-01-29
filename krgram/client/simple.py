@@ -2,9 +2,9 @@ from krgram.client.authorizer import Authorizer
 from krgram.client.session import Session
 from krgram.mtproto.connection import MTProtoAbridgedConnection
 from krgram.mtproto.dcs import DataCenters
-from krgram.mtproto.errors import UnexpectedResponseError, MTProtoFatalError, UnexpectedResponseIdError
+from krgram.mtproto.errors import MTProtoFatalError, UnexpectedResponseIdError
 from krgram.mtproto.message import EncryptedMsg
-from krgram.servers_pk import TelegramServersPublicKeys
+from krgram.mtproto.servers_pk import TelegramServersPublicKeys
 from krgram.tl.base import TLRegister, TLBaseSerializer
 from krgram.tl.stream import TLBytesStream
 

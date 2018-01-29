@@ -3,7 +3,6 @@ from time import time
 
 import krgram.tl.protocol
 import krgram.tl.protocol.auth
-from krgram import Bytes
 from krgram.client.crypto import TLEncryptor
 from krgram.client.errors import SecurityError
 from krgram.mtproto.connection import MTProtoAbridgedConnection
@@ -11,7 +10,7 @@ from krgram.mtproto.dcs import DataCenters
 from krgram.mtproto.errors import UnexpectedResponseError
 from krgram.mtproto.message import PlainMsg
 from krgram.mtproto.msg_extra import MsgId
-from krgram.servers_pk import TelegramServersPublicKeys
+from krgram.mtproto.servers_pk import TelegramServersPublicKeys
 from krgram.tl.base import *
 from krgram.tl.core_types.native_extends import TL_int128, TL_int256
 from krgram.tl.stream import TLBytesStream
