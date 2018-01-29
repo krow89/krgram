@@ -5,7 +5,7 @@ from krgram.mtproto.dcs import DataCenters
 from krgram.mtproto.errors import UnexpectedResponseError, MTProtoFatalError, UnexpectedResponseIdError
 from krgram.mtproto.message import EncryptedMsg
 from krgram.servers_pk import TelegramServersPublicKeys
-from krgram.tl.base import TLRegister, TLBasicTypeSerializer
+from krgram.tl.base import TLRegister, TLBaseSerializer
 from krgram.tl.stream import TLBytesStream
 
 try:
@@ -60,10 +60,10 @@ class MTProtoClient:
 		enc_msg_data_obj = session.decrypt_message( resp_msg.get_message_key(), resp_msg.get_encrypted_message() )
 		msg = enc_msg_data_obj.data
 		msg_id = msg[:4]
-		func_class = TLRegister.get( TLBasicTypeSerializer.deserialize_int32(msg_id))
+		func_class = TLRegister.get(TLBaseSerializer.deserialize_int32(msg_id))
 		if func_class is None:
 			# TODO: new error class is needed
-			raise UnexpectedResponseIdError(TLBasicTypeSerializer.deserialize_int32(msg_id, False))
+			raise UnexpectedResponseIdError(TLBaseSerializer.deserialize_int32(msg_id, False))
 		tl_obj = func_class()
 		tl_obj.deserialize_from( TLBytesStream(msg) )
 		return tl_obj

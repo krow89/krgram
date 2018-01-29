@@ -43,8 +43,8 @@ class PlainMsg(BaseMsg):
 		out= Bytes( 8 + 8 + 4 + msg_len )
 		out[0:8]= Bytes('\00' * 8)
 
-		out[8:16]= TLBasicTypeSerializer.serialize_long(self.msg_id, False) #Bytes.from_int( self.msg_id, 8, big_endian=False, signed=False )
-		out[16:20]= TLBasicTypeSerializer.serialize_int32(msg_len, False)#Bytes.from_int( msg_len, 4, big_endian=False, signed=False )
+		out[8:16]= TLBaseSerializer.serialize_long(self.msg_id, False) #Bytes.from_int( self.msg_id, 8, big_endian=False, signed=False )
+		out[16:20]= TLBaseSerializer.serialize_int32(msg_len, False)#Bytes.from_int( msg_len, 4, big_endian=False, signed=False )
 		out[20:]= msg_data
 		return out
 
@@ -52,11 +52,11 @@ class PlainMsg(BaseMsg):
 		if not isinstance(stream, QueueByteStream):
 			stream = QueueByteStream(stream)
 		# TODO: add checks
-		self.auth_key_id = TLBasicTypeSerializer.deserialize_long(stream) #TL_long().deserialize_from(stream).get()
-		self.msg_id = TLBasicTypeSerializer.deserialize_long(stream, False)
-		msg_len = TLBasicTypeSerializer.deserialize_int32(stream, False)
+		self.auth_key_id = TLBaseSerializer.deserialize_long(stream) #TL_long().deserialize_from(stream).get()
+		self.msg_id = TLBaseSerializer.deserialize_long(stream, False)
+		msg_len = TLBaseSerializer.deserialize_int32(stream, False)
 		serialized_content = stream.read(msg_len)
-		func_id_content = TLBasicTypeSerializer.deserialize_int32(serialized_content[:4])
+		func_id_content = TLBaseSerializer.deserialize_int32(serialized_content[:4])
 		func_class = TLRegister.get(func_id_content)
 		if func_class is not None:
 			self.content = func_class()
@@ -91,7 +91,7 @@ class EncryptedMsgData:
 		return bs.read()
 
 	def deserialize(self, bytes_raw):
-		TLS = TLBasicTypeSerializer
+		TLS = TLBaseSerializer
 		stream = TLBytesStream(bytes_raw)
 		self.salt= TLS.deserialize_long(stream) # TL_long().deserialize_from(stream)
 		self.session_id = TLS.deserialize_long(stream) # TL_long().deserialize_from(stream)

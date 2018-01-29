@@ -2,6 +2,7 @@ import os
 from time import time
 
 import krgram.tl.protocol
+import krgram.tl.protocol.auth
 from krgram import Bytes
 from krgram.client.crypto import TLEncryptor
 from krgram.client.errors import SecurityError
@@ -61,11 +62,11 @@ class Authorizer:
 			conn = self._init_connection(self.dc, self.test_mode)
 			autoclose = True
 		raw_nonce = os.urandom(16)
-		obj = krgram.tl.protocol.req_pq(nonce=raw_nonce)
+		obj = krgram.tl.protocol.auth.req_pq(nonce=raw_nonce)
 		nonce = obj.nonce#["nonce"]
 		resp_tl_obj = self._send_plain_req(conn, obj)
 		#resp_tl_obj = msg.get_content()
-		if resp_tl_obj.ID != krgram.tl.protocol.resPQ.ID:
+		if resp_tl_obj.ID != krgram.tl.protocol.auth.resPQ.ID:
 			raise UnexpectedResponseError("Expected a resPQ object")
 		if resp_tl_obj.nonce != obj.nonce:
 			raise SecurityError("nonce != (server)nonce")
@@ -84,12 +85,12 @@ class Authorizer:
 		p, q = factorize(pq)
 		p, q = (p, q) if p < q else (q, p)
 		new_nonce = os.urandom(32)
-		obj = krgram.tl.protocol.p_q_inner_data(p=p,
-												q=q,
-												pq=pq,
-												server_nonce=server_nonce,
-												nonce=nonce,
-												new_nonce=new_nonce)
+		obj = krgram.tl.protocol.auth.p_q_inner_data(p=p,
+													 q=q,
+													 pq=pq,
+													 server_nonce=server_nonce,
+													 nonce=nonce,
+													 new_nonce=new_nonce)
 		pq_inner_data_serialized = obj.serialize()
 		data_with_hash = Hash.sha1(pq_inner_data_serialized) + pq_inner_data_serialized
 		if len(data_with_hash) < 255:
@@ -97,12 +98,12 @@ class Authorizer:
 
 		# encrypt with rsa and send data
 		enc_data = Crypto.rsa_encrypt(data_with_hash, curr_key)
-		obj = krgram.tl.protocol.req_DH_params(nonce=nonce,
-											   p=p,
-											   q=q,
-											   server_nonce=server_nonce,
-											   public_key_fingerprint=curr_key.fingerprint,
-											   encrypted_data=enc_data)
+		obj = krgram.tl.protocol.auth.req_DH_params(nonce=nonce,
+													p=p,
+													q=q,
+													server_nonce=server_nonce,
+													public_key_fingerprint=curr_key.fingerprint,
+													encrypted_data=enc_data)
 		resp_tl_obj = self._send_plain_req(conn, obj)
 		#resp_tl_obj = msg.get_content()
 		if resp_tl_obj.nonce != nonce or resp_tl_obj.server_nonce != server_nonce:
@@ -116,11 +117,11 @@ class Authorizer:
 		answer = server_dh.data
 		id_answer_class = Bytes(answer[:4]).to_int(False, False)
 		register_class = TLRegister.get_func_type(id_answer_class)
-		if register_class is None or register_class.ID != krgram.tl.protocol.server_DH_inner_data.ID:
+		if register_class is None or register_class.ID != krgram.tl.protocol.auth.server_DH_inner_data.ID:
 			raise UnexpectedResponseError("Unexpected response type from server")
 		tlstream = TLBytesStream(answer)
 		#tlstream.write(answer[4:])
-		resp_tl_obj = krgram.tl.protocol.server_DH_inner_data().deserialize_from(tlstream)
+		resp_tl_obj = krgram.tl.protocol.auth.server_DH_inner_data().deserialize_from(tlstream)
 		g_a = resp_tl_obj.g_a
 		server_time_diff = resp_tl_obj.server_time - int(time())
 		b_raw = os.urandom(256)
@@ -129,24 +130,24 @@ class Authorizer:
 		dh_prime = resp_tl_obj.dh_prime
 		g_b = pow(g, b, dh_prime)
 		retry_id = 0
-		data = krgram.tl.protocol.client_DH_inner_data(nonce=nonce,
-													   server_nonce=server_nonce,
-													   retry_id=retry_id,
-													   g_b=g_b).serialize()
+		data = krgram.tl.protocol.auth.client_DH_inner_data(nonce=nonce,
+															server_nonce=server_nonce,
+															retry_id=retry_id,
+															g_b=g_b).serialize()
 		enc_data = TLEncryptor.encrypt_client_dh(data, server_dh.aes_key_iv)
-		obj = krgram.tl.protocol.set_client_DH_params(nonce=nonce,
-													  server_nonce=server_nonce,
-													  encrypted_data=enc_data)
+		obj = krgram.tl.protocol.auth.set_client_DH_params(nonce=nonce,
+														   server_nonce=server_nonce,
+														   encrypted_data=enc_data)
 		resp_tl_obj = self._send_plain_req(conn, obj)
 		#resp_tl_obj = msg.get_content()
-		if resp_tl_obj.ID != krgram.tl.protocol.dh_gen_ok.ID:
+		if resp_tl_obj.ID != krgram.tl.protocol.auth.dh_gen_ok.ID:
 			raise Exception("DH generation not succesfull")
 		auth_key = pow(g_a, b, dh_prime)
 		auth_key = Bytes.from_int(auth_key, 256)
 		if autoclose:
 			conn.close()
 		auth_key = AuthKey(auth_key)
-		self._server_salt = TLBasicTypeSerializer.deserialize_long(server_salt)
+		self._server_salt = TLBaseSerializer.deserialize_long(server_salt)
 		self._auth_key = auth_key
 		self._server_time_diff = server_time_diff
 

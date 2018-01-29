@@ -16,10 +16,10 @@ class TL_int(TLBaseType):
 
 	def serialize(self):
 		v= self.get()
-		return TLBasicTypeSerializer.serialize_int32(v, self._signed)
+		return TLBaseSerializer.serialize_int32(v, self._signed)
 
 	def deserialize_from(self, stream):
-		v = TLBasicTypeSerializer.deserialize_int32(stream, self._signed)
+		v = TLBaseSerializer.deserialize_int32(stream, self._signed)
 		self.set(v)
 		return self
 
@@ -27,10 +27,10 @@ class TL_int(TLBaseType):
 class TL_long(TL_int):
 	def serialize(self):
 		v = self.get()
-		return TLBasicTypeSerializer.serialize_long(v, self._signed)
+		return TLBaseSerializer.serialize_long(v, self._signed)
 
 	def deserialize_from(self, stream):
-		v = TLBasicTypeSerializer.deserialize_long(stream, self._signed)
+		v = TLBaseSerializer.deserialize_long(stream, self._signed)
 		self.set(v)
 		return self
 
@@ -49,11 +49,11 @@ class TL_string(TLBaseType):
 		return datal + (4-(datal%4))
 
 	def serialize(self):
-		b = TLBasicTypeSerializer.serialize_string( self.get() )
+		b = TLBaseSerializer.serialize_string(self.get())
 		return b
 
 	def deserialize_from(self, stream):
-		s = TLBasicTypeSerializer.deserialize_string(stream)
+		s = TLBaseSerializer.deserialize_string(stream)
 		self.set(s)
 		return self
 
@@ -67,9 +67,9 @@ class TL_double(TLBaseType):
 		super(TL_double, self).__init__(value)
 
 	def serialize(self):
-		return TLBasicTypeSerializer.serialize_double( self.get() )
+		return TLBaseSerializer.serialize_double(self.get())
 
 	def deserialize_from(self, stream):
-		d = TLBasicTypeSerializer.deserialize_double(stream)
+		d = TLBaseSerializer.deserialize_double(stream)
 		self.set(d)
 		return self

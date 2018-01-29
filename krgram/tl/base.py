@@ -2,7 +2,7 @@ from krgram import Bytes
 from krgram.utils.stream import QueueByteStream
 
 
-class TLBasicTypeSerializer:
+class TLBaseSerializer:
 
 	@staticmethod
 	def serialize_int32(i, signed=True):
@@ -127,6 +127,54 @@ class TLBaseType(TLSerializable):
 
 	def deserialize_from(self, stream):
 		raise NotImplementedError()
+
+
+class TLFlagType(TLBaseType):
+	def __init__(self, n):
+		super(TLFlagType, self).__init__(n)
+
+	def serialize(self):
+		return TLBaseSerializer.serialize_int32(self.get())
+
+	def deserialize_from(self, stream):
+		n = TLBaseSerializer.deserialize_int32(stream)
+		self.set(n)
+
+	def check_flagged(self, mask):
+		return self.get() & mask
+
+
+class TLFlaggedType(TLBaseType):
+	def __init__(self, bit_mask_index, type_inst):
+		super(TLFlaggedType, self).__init__(None)
+		self._ref = type_inst
+		self._mask = 1<<bit_mask_index
+		self._flag = False
+
+	def get(self):
+		if self.is_flagged():
+			return self._ref
+		else:
+			return None
+
+	def get_mask(self):
+		return self._mask
+
+	def set_flag(self, flag):
+		self._flag = flag
+
+	def is_flagged(self):
+		return self._flag
+
+	def serialize(self):
+		if self.is_flagged():
+			return self._ref.serialize()
+		return Bytes()
+
+	def deserialize_from(self, stream):
+		if self.is_flagged():
+			self._ref.deserialize_from(stream)
+		return self
 
 
 class TLConstructedType(TLBaseType):
@@ -288,7 +336,7 @@ class TLFunction(TLCompositeType):
 
 	def deserialize_from(self, stream):
 		# noinspection PyUnusedLocal
-		self_id = TLBasicTypeSerializer.deserialize_int32(stream.read(4))
+		self_id = TLBaseSerializer.deserialize_int32(stream.read(4))
 		# TODO: add check on retrieve id ????
 		super(TLFunction, self).deserialize_from(stream)
 		return self
