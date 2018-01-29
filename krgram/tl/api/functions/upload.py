@@ -1,4 +1,5 @@
 from krgram.tl.api.types.globals import InputFileLocation
+from krgram.tl.core_types.native import TL_long, TL_bytes
 from krgram.tl.types import *
 
 

@@ -21,4 +21,4 @@ class UnexpectedResponseIdError(UnexpectedResponseError):
 		self._id = unexpected_id
 
 	def __str__(self):
-		return "%s: unexpected id= %x" % (self.__class__, self._id)
+		return "unexpected id= %x" % (self._id,)

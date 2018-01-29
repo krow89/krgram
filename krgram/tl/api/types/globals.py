@@ -1,4 +1,5 @@
 from krgram.tl.api.types.contacts import MyLink, ForeignLink, Link
+from krgram.tl.core_types.native import TL_long, TL_string, TL_bytes, TL_double
 from krgram.tl.types import *
 
 

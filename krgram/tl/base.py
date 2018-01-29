@@ -157,20 +157,19 @@ class TLConstructedType(TLBaseType):
 		return self
 
 
-class TLFunction(TLBaseType):
+class TLCompositeType(TLBaseType):
 	ID = None
 
 	def __init__(self, **params):
-		if self.__class__.ID is None:
-			raise ValueError("ID cannot be None")
 		self._params_map = {}
 		self._member_access_flag = False
 		# noinspection PyTypeChecker
 		self._params_ordered = self._check_struct(self.get_structure())
-		super(TLFunction, self).__init__(params)
+		super(TLCompositeType, self).__init__(params)
 		self._member_access_flag = True
 
 	def set(self, dict_obj):
+		# TODO: handle None case
 		if dict_obj is None:
 			return
 		for k in dict_obj:
@@ -181,24 +180,15 @@ class TLFunction(TLBaseType):
 		return self.to_dict()
 
 	def serialize(self):
-		stream = Bytes.from_int(self.ID, 4, False, False)
+		buff = Bytes()
 		for pname in self._params_ordered:
-			stream += self._params_map[pname].serialize()
-		return stream
+			buff += self._params_map[pname].serialize()
+		return buff
 
 	def deserialize_from(self, stream):
-		# noinspection PyUnusedLocal
-		self_id = TLBasicTypeSerializer.deserialize_int32( stream.read(4) )
-		# TODO: add check on retrieve id ????
 		for pname in self._params_ordered:
 			self._params_map[pname].deserialize_from(stream)
 		return self
-
-	def size(self):
-		size = 0
-		for m in self._params_ordered:
-			size += m[1].size()
-		return size
 
 	def _check_struct(self, s):
 		if s is None:
@@ -281,6 +271,27 @@ class TLFunction(TLBaseType):
 			if item in self._params_map:
 				return self._params_map[item].get()
 		return self.__getattribute__(item)
+
+
+class TLFunction(TLCompositeType):
+	ID = None
+
+	def __init__(self, **params):
+		if self.__class__.ID is None:
+			raise ValueError("ID cannot be None")
+		super(TLFunction, self).__init__(**params)
+
+	def serialize(self):
+		ser_id = Bytes.from_int(self.ID, 4, False, False)
+		ser_params = super(TLFunction, self).serialize()
+		return ser_id + ser_params
+
+	def deserialize_from(self, stream):
+		# noinspection PyUnusedLocal
+		self_id = TLBasicTypeSerializer.deserialize_int32(stream.read(4))
+		# TODO: add check on retrieve id ????
+		super(TLFunction, self).deserialize_from(stream)
+		return self
 
 
 class TLConstructor(TLFunction):

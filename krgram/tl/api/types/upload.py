@@ -1,4 +1,5 @@
 from krgram.tl.api.types import storage
+from krgram.tl.core_types.native import TL_bytes
 from krgram.tl.types import *
 
 

@@ -1,4 +1,5 @@
-from krgram.tl.types import *
+from krgram.tl.core_types.native import TL_string
+from krgram.tl.base import *
 
 
 class getConfig(TLFunction):

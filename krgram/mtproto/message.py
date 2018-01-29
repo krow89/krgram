@@ -1,7 +1,6 @@
-from krgram import Bytes
-from krgram.tl.base import TLSerializable, TLBasicTypeSerializer, TLRegister
+from krgram.tl.base import TLSerializable, TLRegister
+from krgram.tl.core_types.native import *
 from krgram.tl.stream import TLBytesStream
-from krgram.tl.types import TL_long, TL_int
 from krgram.utils.stream import QueueByteStream
 
 

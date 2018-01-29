@@ -43,7 +43,7 @@ class Session:
 
 	def decrypt_message(self, msg_key, encrypted_msg):
 		auth_key = self._auth_key
-		decrypted_raw = TLEncryptor.decrypt_message(auth_key.key, msg_key, encrypted_msg)
+		decrypted_raw = TLEncryptor.decrypt_message(auth_key.data, msg_key, encrypted_msg)
 		enc_msg = EncryptedMsgData(None, None, None, None, None).deserialize(decrypted_raw)
 		return enc_msg
 

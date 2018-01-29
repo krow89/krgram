@@ -1,4 +1,5 @@
-from krgram.tl.types import *
+from krgram.tl.core_types import *
+from krgram.tl.base import *
 
 
 class invokeAfterMsg(TLFunction):

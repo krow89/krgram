@@ -1,7 +1,7 @@
 import rsa
 
-from krgram.tl.auth import TL_int_as_string
-from krgram.tl.types import TL_long
+from krgram.tl.core_types.native_extends import TL_int_as_string
+from krgram.tl.core_types.native import TL_long
 from krgram.utils.cryptohash import Hash
 
 _know_servers_pub_keys = (

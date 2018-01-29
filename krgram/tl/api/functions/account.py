@@ -1,4 +1,5 @@
 from krgram.tl.api.types.globals import InputNotifyPeer, InputPeerNotifySettings, InputPeer, ReportReason
+from krgram.tl.core_types.native import TL_string
 from krgram.tl.types import *
 
 

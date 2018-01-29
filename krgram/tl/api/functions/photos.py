@@ -1,4 +1,5 @@
 from krgram.tl.api.types.globals import InputFile, InputPhotoCrop, InputGeoPoint, InputPhoto, InputUser
+from krgram.tl.core_types.native import TL_string
 from krgram.tl.types import *
 
 
